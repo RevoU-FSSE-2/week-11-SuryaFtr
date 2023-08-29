@@ -1,0 +1,32 @@
+{
+  "name": "recipe-cooking-book-api",
+  "version": "1.0.0",
+  "description": "A RESTFull API for recipe book cooking website application",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "restfull",
+    "api",
+    "recipe",
+    "book",
+    "cooking",
+    "website",
+    "application"
+  ],
+  "author": "Surya Faturohman",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.2",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-openapi-validator": "^5.0.6",
+    "jsonwebtoken": "^9.0.1",
+    "mysql2": "^3.6.0",
+    "swagger-ui-express": "^5.0.0",
+    "yaml": "^2.3.2"
+  }
+}
