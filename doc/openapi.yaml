@@ -1,0 +1,107 @@
+openapi: 3.0.0
+
+info:
+  title: Cooking Recipe API
+  description: Simple API facilities the interaction between 3 distinct roles, Admin, Maker and Viewer, focusing on designing a system that efficiently handles transfer requests ensuring security and integrity.
+  version: 2.0.0
+
+servers:
+  - url: http://localhost:8080/
+    description: Development server
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "Bearer with JWT Token"
+  schemas:
+    UserRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          pattern: '^[^\s]+$' # no whitespace
+          example: "user"
+        role:
+          type: string
+          enum: # only allow these values
+            - "maker"
+            - "viewer"
+        password:
+          type: string
+          minLength: 8 # minimum length of 8
+          pattern: '^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]+$' # alphanumeric
+      required:
+        - username
+        - role
+        - password
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        role:
+          type: string
+          enum:
+            - "maker"
+            - "viewer"
+        message:
+          type: string
+    UserLoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          pattern: '^[^\s]+$'
+          example: "username"
+        password:
+          type: string
+          format: password
+          minLength: 8
+      required:
+        - username
+        - password
+paths:
+  /v1/auth/register:
+    post:
+      tags:
+        - "User"
+      summary: "Register a new user"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserRequest"
+      responses:
+        "201":
+          description: "User created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "400":
+          description: "Invalid request"
+        "409":
+          description: "User already exists"
+  /v1/auth/login:
+    post:
+      tags:
+        - "User"
+      summary: "Login"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserLoginRequest"
+      responses:
+        "200":
+          description: "User logged in"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "400":
+          description: "Invalid request"
