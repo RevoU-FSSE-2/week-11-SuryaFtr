@@ -16,8 +16,8 @@ const authenticationMiddleware = (req, res, next) => {
     }
 }
 
-const authorizationMiddleware = ({ roles }) => (req, res, next) => {
-    if (!roles.includes(req.role)) {
+const authorizationMiddleware = ({ role }) => (req, res, next) => {
+    if (!role.includes(req.role)) {
         return res.status(401).json({ message: "Unauthorized" })
     }
     next()
