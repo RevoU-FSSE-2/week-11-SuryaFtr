@@ -66,6 +66,12 @@ We using **Swagger** for comprehensive API documentation detailing endpoints, va
 
 Here is the deploy API link for swagger UI : https://odd-red-bikini.cyclic.app/api-docs
 
+For Login as a admin you can use this registered admin account :
+```json
+"username": "administrator"
+"passoword": "admin123"
+```
+
 ## Deployment
 
 Ensure you set environment variables according to the server environment.
