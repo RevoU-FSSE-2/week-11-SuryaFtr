@@ -1,15 +1,15 @@
 const { ObjectId } = require("mongodb")
 const StandardError = require("../constant/standard-error")
 
-const createRecipeRequest = async ({ db, username, ...request }) => {
+const createRecipeRequest = async ({ db, createdBy, ...request }) => {
     try {
-        const user = await db.collection("users").findOne({ username, role: { $in: ["admin", "maker"] } })
+        const user = await db.collection("users").findOne({ username: createdBy, role: { $in: ["admin", "maker"] } })
         if (!user) {
-            throw new StandardError({ message: "Username not found or unauthorize", status: 404 })
+            throw new StandardError({ message: "Username not found, createdBy must using correct role username", status: 404 })
         }
 
         const recipeRequest = {
-            username,
+            createdBy,
             ...request,
             status: "pending",
             createdAt: new Date(),
@@ -24,10 +24,10 @@ const createRecipeRequest = async ({ db, username, ...request }) => {
 
 }
 
-const createRecipeMakerRequest = async ({ db, username, ...request }) => {
+const createRecipeMakerRequest = async ({ db, createdBy, ...request }) => {
     try {
         const recipeRequest = {
-            username,
+            createdBy,
             ...request,
             status: "pending",
             createdAt: new Date(),
@@ -51,9 +51,9 @@ const getAllRecipeRequest = async ({ db }) => {
     }
 }
 
-const getRecipesMakerRequest = async ({ db, username }) => {
+const getRecipesMakerRequest = async ({ db, createdBy }) => {
     try {
-        const recipeRequests = await db.collection("recipes").find({ username }).toArray()
+        const recipeRequests = await db.collection("recipes").find({ createdBy }).toArray()
         return recipeRequests
     } catch (error) {
         throw new StandardError({ message: error.message, status: 500 })
@@ -71,15 +71,21 @@ const updateRecipeStatusRequest = async ({ db, id, status }) => {
     }
 }
 
-const updateRecipesRequest = async ({ db, id, username, ...request }) => {
+const updateRecipesRequest = async ({ db, id, createdBy, recipename, ...request }) => {
     try {
-        const user = await db.collection("users").findOne({ username, role: { $in: ["admin", "maker"] } })
-        if (!user) {
-            throw new StandardError({ message: "Username not found or unauthorize", status: 404 })
+        const recipes = await db.collection("recipes").findOne({ _id: new ObjectId(id), createdBy })
+        if (!recipes) {
+            throw new StandardError({ message: "createdBy must be fill with registered username maker", status: 404 })
+        }
+
+        const feedback = await db.collection("feedbacks").findOne({ id_recipe: id })
+        if (feedback) {
+            await db.collection('feedbacks').updateMany({ id_recipe: id }, { $set: { createdBy, recipename } })
         }
 
         const recipeUpdateRequest = {
-            username,
+            createdBy,
+            recipename,
             ...request,
             updatedAt: new Date()
         }
@@ -93,9 +99,16 @@ const updateRecipesRequest = async ({ db, id, username, ...request }) => {
     }
 }
 
-const updateRecipesMakerRequest = async ({ db, id, username, ...request }) => {
+const updateRecipesMakerRequest = async ({ db, id, createdBy, recipename, ...request }) => {
+
+    const feedback = await db.collection("feedbacks").findOne({ id_recipe: id })
+    if (feedback) {
+        await db.collection('feedbacks').updateMany({ id_recipe: id }, { $set: { createdBy, recipename } })
+    }
+
     const recipeUpdateRequest = {
-        username,
+        createdBy,
+        recipename,
         ...request,
         updatedAt: new Date()
     }
@@ -112,20 +125,9 @@ const updateRecipesMakerRequest = async ({ db, id, username, ...request }) => {
 
 const deleteRecipesRequest = async ({ db, id }) => {
     try {
-        const res = await db.collection('recipes').deleteOne({ _id: new ObjectId(id) })
-        if (res.modifiedCount === 0) {
-            throw new StandardError({ message: "Recipe request not found", status: 404 })
-        }
-    } catch (error) {
-        throw new StandardError({ message: error.message, status: 500 })
-    }
-}
-
-const deleteRecipesMakerRequest = async ({ db, id, username }) => {
-    try {
-        const user = await db.collection("recipes").findOne({ _id: new ObjectId(id), username })
-        if (!user) {
-            throw new StandardError({ message: "Recipe is not found or unauthorize", status: 404 })
+        const feedback = await db.collection("feedbacks").findOne({ id_recipe: id })
+        if (feedback) {
+            await db.collection('feedbacks').deleteMany({ id_recipe: id })
         }
 
         const res = await db.collection('recipes').deleteOne({ _id: new ObjectId(id) })
@@ -136,7 +138,6 @@ const deleteRecipesMakerRequest = async ({ db, id, username }) => {
         throw new StandardError({ message: error.message, status: 500 })
     }
 }
-
 
 
 module.exports = {
@@ -147,6 +148,5 @@ module.exports = {
     updateRecipeStatusRequest,
     updateRecipesRequest,
     updateRecipesMakerRequest,
-    deleteRecipesRequest,
-    deleteRecipesMakerRequest
+    deleteRecipesRequest
 }

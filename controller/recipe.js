@@ -6,16 +6,15 @@ const {
     updateRecipeStatusRequest,
     updateRecipesRequest,
     updateRecipesMakerRequest,
-    deleteRecipesRequest,
-    deleteRecipesMakerRequest
+    deleteRecipesRequest
 } = require("../service/recipe.js")
 const jwt = require("jsonwebtoken")
 
 const createRecipe = async (req, res, next) => {
     try {
-        const { username } = req.body
+        const { createdBy } = req.body
         const { db, body } = req
-        const response = await createRecipeRequest({ db, username, ...body })
+        const response = await createRecipeRequest({ db, createdBy, ...body })
         res.status(201).json({ message: "Recipe request created", data: response })
     } catch (error) {
         next(error)
@@ -31,9 +30,10 @@ const createRecipeMaker = async (req, res, next) => {
     try {
         const payload = jwt.verify(token, process.env.SECRET_KEY)
         req.username = payload.username
-        username = req.username
+        createdBy = req.username
+
         const { db, body } = req
-        const response = await createRecipeMakerRequest({ db, username, ...body })
+        const response = await createRecipeMakerRequest({ db, createdBy, ...body })
         res.status(201).json({ message: "Recipe request created", data: response })
     } catch (error) {
         next(error)
@@ -59,9 +59,9 @@ const getRecipesMaker = async (req, res, next) => {
     try {
         const payload = jwt.verify(token, process.env.SECRET_KEY)
         req.username = payload.username
-        username = req.username
+        createdBy = req.username
         const { db } = req
-        const recipeMakerRequests = await getRecipesMakerRequest({ db, username })
+        const recipeMakerRequests = await getRecipesMakerRequest({ db, createdBy })
         res.status(200).json({ data: recipeMakerRequests })
     } catch (error) {
         next(error)
@@ -80,9 +80,9 @@ const updateRecipeStatus = async (req, res, next) => {
 
 const updateRecipes = async (req, res, next) => {
     try {
-        const { username } = req.body
+        const { createdBy, recipename } = req.body
         const { db, params, body } = req
-        await updateRecipesRequest({ db, id: params.id, username, ...body })
+        await updateRecipesRequest({ db, id: params.id, createdBy, recipename, ...body })
         res.status(200).json({ message: "Recipe request updated" })
     } catch (error) {
         next(error)
@@ -98,10 +98,11 @@ const updateRecipeMaker = async (req, res, next) => {
     try {
         const payload = jwt.verify(token, process.env.SECRET_KEY)
         req.username = payload.username
-        username = req.username
+        createdBy = req.username
 
+        const { recipename } = req.body
         const { db, params, body } = req
-        await updateRecipesMakerRequest({ db, id: params.id, username, ...body })
+        await updateRecipesMakerRequest({ db, id: params.id, createdBy, recipename, ...body })
         res.status(200).json({ message: "Recipe request updated" })
     } catch (error) {
         next(error)
@@ -118,26 +119,6 @@ const deleteRecipes = async (req, res, next) => {
     }
 }
 
-const deleteRecipeMaker = async (req, res, next) => {
-    const authorization = req.headers.authorization
-    const token = authorization && authorization.split(" ")[1]
-    if (!token) {
-        return res.status(401).json({ message: "Token not found" })
-    }
-    try {
-        const payload = jwt.verify(token, process.env.SECRET_KEY)
-        req.username = payload.username
-        username = req.username
-
-        const { db, params } = req
-        await deleteRecipesMakerRequest({ db, id: params.id, username })
-        res.status(200).json({ message: "Recipe request is deleted" })
-    } catch (error) {
-        next(error)
-    }
-}
-
-
 module.exports = {
     createRecipe,
     createRecipeMaker,
@@ -146,6 +127,5 @@ module.exports = {
     updateRecipeStatus,
     updateRecipes,
     updateRecipeMaker,
-    deleteRecipes,
-    deleteRecipeMaker
+    deleteRecipes
 }

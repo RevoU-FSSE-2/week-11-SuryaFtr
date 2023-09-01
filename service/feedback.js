@@ -1,26 +1,25 @@
 const { ObjectId } = require("mongodb")
 const StandardError = require("../constant/standard-error")
 
-const createFeedbackRequest = async ({ db, createdBy, recipename, feedbackBy, ...request }) => {
+const createFeedbackRequest = async ({ db, id_recipe, feedbackBy, ...request }) => {
     try {
         const user = await db.collection("users").findOne({ username: feedbackBy, role: { $in: ["admin", "viewer"] } })
         if (!user) {
-            throw new StandardError({ message: "Username not found or unauthorize", status: 404 })
+            throw new StandardError({ message: "feedbackBy must be fill with registered username viewer", status: 404 })
         }
 
-        const recipe = await db.collection("recipes").findOne({ username: createdBy, recipename, status: { $in: ["accepted"] } })
+        const recipe = await db.collection("recipes").findOne({ _id: new ObjectId(id_recipe), status: { $in: ["accepted"] } })
         if (!recipe) {
             throw new StandardError({ message: "Recipe not found", status: 404 })
         }
 
-        const feedback = await db.collection("feedbacks").findOne({ createdBy, recipename, feedbackBy })
+        const feedback = await db.collection("feedbacks").findOne({ id_recipe, feedbackBy })
         if (feedback) {
-            throw new StandardError({ message: "Feedback is already created before", status: 404 })
+            throw new StandardError({ message: "Feedback is already gifted to this recipe", status: 404 })
         }
 
         const feedbackRequest = {
-            createdBy,
-            recipename,
+            id_recipe,
             feedbackBy,
             ...request,
             createdAt: new Date(),
@@ -35,21 +34,20 @@ const createFeedbackRequest = async ({ db, createdBy, recipename, feedbackBy, ..
 
 }
 
-const createFeedbackViewerRequest = async ({ db, createdBy, recipename, feedbackBy, ...request }) => {
+const createFeedbackViewerRequest = async ({ db, id_recipe, feedbackBy, ...request }) => {
     try {
-        const recipe = await db.collection("recipes").findOne({ username: createdBy, recipename, status: { $in: ["accepted"] } })
+        const recipe = await db.collection("recipes").findOne({ _id: new ObjectId(id_recipe), status: { $in: ["accepted"] } })
         if (!recipe) {
             throw new StandardError({ message: "Recipe not found", status: 404 })
         }
 
-        const feedback = await db.collection("feedbacks").findOne({ createdBy, recipename, feedbackBy })
+        const feedback = await db.collection("feedbacks").findOne({ id_recipe, feedbackBy })
         if (feedback) {
             throw new StandardError({ message: "Feedback is already gifted to this recipe", status: 404 })
         }
 
         const feedbackRequest = {
-            createdBy,
-            recipename,
+            id_recipe,
             feedbackBy,
             ...request,
             createdAt: new Date(),
@@ -84,14 +82,14 @@ const getFeedbacksViewerRequest = async ({ db, feedbackBy }) => {
 
 const updateFeedbacksRequest = async ({ db, id, feedbackBy, ...request }) => {
     try {
-        const user = await db.collection("users").findOne({ username: feedbackBy, role: { $in: ["admin", "viewer"] } })
+        const user = await db.collection("feedbacks").findOne({ _id: new ObjectId(id), feedbackBy })
         if (!user) {
-            throw new StandardError({ message: "Username not found or unauthorize", status: 404 })
+            throw new StandardError({ message: "Feedback is not found", status: 404 })
         }
 
         const feedbackUpdateRequest = {
-            feedbackBy,
             ...request,
+            feedbackBy,
             updatedAt: new Date()
         }
 
@@ -106,8 +104,8 @@ const updateFeedbacksRequest = async ({ db, id, feedbackBy, ...request }) => {
 
 const updateFeedbacksViewerRequest = async ({ db, id, feedbackBy, ...request }) => {
     const feedbackUpdateRequest = {
-        feedbackBy,
         ...request,
+        feedbackBy,
         updatedAt: new Date()
     }
 

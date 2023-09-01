@@ -7,8 +7,7 @@ const {
     updateRecipeStatus,
     updateRecipes,
     updateRecipeMaker,
-    deleteRecipes,
-    deleteRecipeMaker
+    deleteRecipes
 } = require('../controller/recipe.js');
 const { authorizationMiddleware } = require('../middleware/auth.js');
 
@@ -22,6 +21,6 @@ recipesReqRouter.patch('/admin/:id', authorizationMiddleware({ role: ['admin'] }
 recipesReqRouter.put('/admin/:id', authorizationMiddleware({ role: ['admin'] }), updateRecipes);
 recipesReqRouter.put('/maker/:id', authorizationMiddleware({ role: ['maker'] }), updateRecipeMaker);
 recipesReqRouter.delete('/admin/:id', authorizationMiddleware({ role: ['admin'] }), deleteRecipes);
-recipesReqRouter.delete('/maker/:id', authorizationMiddleware({ role: ['maker'] }), deleteRecipeMaker);
+recipesReqRouter.delete('/maker/:id', authorizationMiddleware({ role: ['maker'] }), deleteRecipes);
 
 module.exports = recipesReqRouter;
