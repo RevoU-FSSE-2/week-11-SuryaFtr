@@ -6,8 +6,10 @@ info:
   version: 1.0.0
 
 servers:
+  - url: https://odd-red-bikini.cyclic.app/
+    description: Deploy Server
   - url: http://localhost:8080/
-    description: Development server
+    description: Development Server
 components:
   securitySchemes:
     bearer:
