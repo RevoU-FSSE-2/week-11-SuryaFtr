@@ -8,7 +8,9 @@ const bodyParser = require('body-parser')
 const databaseMiddleware = require('./middleware/database.js')
 const authRouter = require('./routes/auth.js')
 const errorHandlerMiddleware = require('./middleware/error-handler.js')
+const indexReqRouter = require('./routes/index-req.js')
 const recipesReqRouter = require('./routes/recipe-req.js')
+const feedbacksReqRouter = require('./routes/feedback-req.js')
 const { authenticationMiddleware } = require('./middleware/auth.js')
 
 const app = express()
@@ -21,8 +23,10 @@ app.use(bodyParser.json())
 // }))
 app.use(databaseMiddleware)
 
+app.use('/v1', indexReqRouter)
 app.use('/v1/auth', authRouter)
 app.use('/v1/recipes', authenticationMiddleware, recipesReqRouter)
+app.use('/v1/feedbacks', authenticationMiddleware, feedbacksReqRouter)
 
 app.use(errorHandlerMiddleware)
 
