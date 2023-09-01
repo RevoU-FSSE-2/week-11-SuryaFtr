@@ -2,8 +2,8 @@ openapi: 3.0.0
 
 info:
   title: Cooking Recipe API
-  description: Simple API facilities the interaction between 3 distinct roles, Admin, Maker and Viewer, focusing on designing a system that efficiently handles transfer requests ensuring security and integrity.
-  version: 2.0.0
+  description: Simple API facilities the interaction between 3 distinct roles, Admin, Maker and Viewer, focusing on designing a system that efficiently handles recipe requests ensuring security and integrity.
+  version: 1.0.0
 
 servers:
   - url: http://localhost:8080/
@@ -46,6 +46,7 @@ components:
         role:
           type: string
           enum:
+            - "admin"
             - "maker"
             - "viewer"
         message:
@@ -64,7 +65,247 @@ components:
       required:
         - username
         - password
+    RecipeRequest:
+      type: object
+      properties:
+        createdBy:
+          type: string
+        recipename:
+          type: string
+        type:
+          type: string
+          enum:
+            - "appetizer"
+            - "main course"
+            - "dessert"
+        descriptions:
+          type: string
+        ingredients:
+          type: string
+        utensils:
+          type: string
+        instructions:
+          type: string
+      required:
+        - createdBy
+        - recipename
+        - type
+    RecipeRequestMaker:
+      type: object
+      properties:
+        recipename:
+          type: string
+        type:
+          type: string
+          enum:
+            - "appetizer"
+            - "main course"
+            - "dessert"
+        descriptions:
+          type: string
+        ingredients:
+          type: string
+        utensils:
+          type: string
+        instructions:
+          type: string
+      required:
+        - createdBy
+        - recipename
+        - type
+    GetAllRecipes:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/RecipeRequest"
+    UpdateStatusRecipe:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - "accepted"
+            - "rejected"
+      required:
+        - status
+    UpdateRecipeRequest:
+      type: object
+      properties:
+        createdBy:
+          type: string
+        recipename:
+          type: string
+        type:
+          type: string
+          enum:
+            - "appetizer"
+            - "main course"
+            - "dessert"
+        descriptions:
+          type: string
+        ingredients:
+          type: string
+        utensils:
+          type: string
+        instructions:
+          type: string
+      required:
+        - createdBy
+        - recipename
+        - type
+    UpdateRecipeRequestMaker:
+      type: object
+      properties:
+        recipename:
+          type: string
+        type:
+          type: string
+          enum:
+            - "appetizer"
+            - "main course"
+            - "dessert"
+        descriptions:
+          type: string
+        ingredients:
+          type: string
+        utensils:
+          type: string
+        instructions:
+          type: string
+      required:
+        - createdBy
+        - recipename
+        - type
+    FeedbackRequest:
+      type: object
+      properties:
+        id_recipe:
+          type: string
+        createdBy:
+          type: string
+        recipename:
+          type: string
+        rate:
+          type: number
+          enum:
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+            - 7
+            - 8
+            - 9
+            - 10
+        feedback:
+          type: string
+        feedbackBy:
+          type: string
+      required:
+        - id_recipe
+        - createdBy
+        - recipename
+    FeedbackRequestViewer:
+      type: object
+      properties:
+        id_recipe:
+          type: string
+        createdBy:
+          type: string
+        recipename:
+          type: string
+        rate:
+          type: number
+          enum:
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+            - 7
+            - 8
+            - 9
+            - 10
+        feedback:
+          type: string
+      required:
+        - id_recipe
+        - createdBy
+        - recipename
+    GetAllFeedbacks:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/FeedbackRequest"
+    UpdateFeedbackRequest:
+      type: object
+      properties:
+        rate:
+          type: number
+          enum:
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+            - 7
+            - 8
+            - 9
+            - 10
+        feedback:
+          type: string
+        feedbackBy:
+          type: string
+      required:
+        - rate
+        - feedback
+        - feedbackBy
+    GetAllFeedbackByRecipeName:
+      type: object
+      properties:
+        recipename:
+          type: string
 paths:
+  /v1:
+    get:
+      tags:
+        - "Index Request"
+      summary: "Get all accepted recipe requests"
+      responses:
+        "200":
+          description: "Recipe requests retrieved"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GetAllRecipes"
+  /v1/recipename:
+    get:
+      tags:
+        - "Index Request"
+      summary: "Get Recipe Feedback by Recipe Name requests"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetAllFeedbackByRecipeName"
+      responses:
+        "200":
+          description: "Feedback requests retrieved"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GetAllFeedbacks"
   /v1/auth/register:
     post:
       tags:
@@ -105,3 +346,394 @@ paths:
                 $ref: "#/components/schemas/UserResponse"
         "400":
           description: "Invalid request"
+
+  /v1/recipes/admin:
+    get:
+      security:
+        - bearer: []
+      tags:
+        - "Recipe Request Admin"
+      summary: "Get all recipe requests"
+      responses:
+        "200":
+          description: "Recipe requests retrieved"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GetAllRecipes"
+        "401":
+          description: "Unauthorized"
+    post:
+      security:
+        - bearer: []
+      tags:
+        - "Recipe Request Admin"
+      summary: "Create a new recipe request"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecipeRequest"
+      responses:
+        "201":
+          description: "Recipe request created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecipeRequest"
+        "400":
+          description: "Invalid request"
+        "401":
+          description: "Unauthorized"
+  /v1/recipes/admin/{id}:
+    patch:
+      security:
+        - bearer: []
+      tags:
+        - "Recipe Request Admin"
+      summary: "Update a recipe request"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: "Recipe request id"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateStatusRecipe"
+      responses:
+        "200":
+          description: "Recipe request updated"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecipeRequest"
+        "400":
+          description: "Invalid request"
+        "401":
+          description: "Unauthorized"
+    put:
+      security:
+        - bearer: []
+      tags:
+        - "Recipe Request Admin"
+      summary: "Update a recipe request"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: "Recipe request id"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateRecipeRequest"
+      responses:
+        "200":
+          description: "Recipe request updated"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecipeRequest"
+        "400":
+          description: "Invalid request"
+        "401":
+          description: "Unauthorized"
+    delete:
+      security:
+        - bearer: []
+      tags:
+        - "Recipe Request Admin"
+      summary: "Delete a recipe request"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: "Recipe request id"
+      responses:
+        "204":
+          description: "Recipe request deleted"
+        "400":
+          description: "Invalid request"
+        "401":
+          description: "Unauthorized"
+  /v1/recipes/maker:
+    get:
+      security:
+        - bearer: []
+      tags:
+        - "Recipe Request Maker"
+      summary: "Get all recipe requests"
+      responses:
+        "200":
+          description: "Recipe requests retrieved"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GetAllRecipes"
+        "401":
+          description: "Unauthorized"
+    post:
+      security:
+        - bearer: []
+      tags:
+        - "Recipe Request Maker"
+      summary: "Create a new recipe request"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecipeRequestMaker"
+      responses:
+        "201":
+          description: "Recipe request created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecipeRequest"
+        "400":
+          description: "Invalid request"
+        "401":
+          description: "Unauthorized"
+  /v1/recipes/maker/{id}:
+    put:
+      security:
+        - bearer: []
+      tags:
+        - "Recipe Request Maker"
+      summary: "Update a recipe request"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: "Recipe request id"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateRecipeRequestMaker"
+      responses:
+        "200":
+          description: "Recipe request updated"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecipeRequest"
+        "400":
+          description: "Invalid request"
+        "401":
+          description: "Unauthorized"
+    delete:
+      security:
+        - bearer: []
+      tags:
+        - "Recipe Request Maker"
+      summary: "Delete a recipe request"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: "Recipe request id"
+      responses:
+        "204":
+          description: "Recipe request deleted"
+        "400":
+          description: "Invalid request"
+        "401":
+          description: "Unauthorized"
+
+  /v1/feedbacks/admin:
+    get:
+      security:
+        - bearer: []
+      tags:
+        - "Feedback Request Admin"
+      summary: "Get all feedback requests"
+      responses:
+        "200":
+          description: "Feedback requests retrieved"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GetAllFeedbacks"
+        "401":
+          description: "Unauthorized"
+    post:
+      security:
+        - bearer: []
+      tags:
+        - "Feedback Request Admin"
+      summary: "Create a new feedback request"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FeedbackRequest"
+      responses:
+        "201":
+          description: "Feedback request created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeedbackRequest"
+        "400":
+          description: "Invalid request"
+        "401":
+          description: "Unauthorized"
+  /v1/feedbacks/admin/{id}:
+    put:
+      security:
+        - bearer: []
+      tags:
+        - "Feedback Request Admin"
+      summary: "Update a feedback request"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: "Feedback request id"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateFeedbackRequest"
+      responses:
+        "200":
+          description: "Feedback request updated"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeedbackRequest"
+        "400":
+          description: "Invalid request"
+        "401":
+          description: "Unauthorized"
+    delete:
+      security:
+        - bearer: []
+      tags:
+        - "Feedback Request Admin"
+      summary: "Delete a feedback request"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: "Feedback request id"
+      responses:
+        "204":
+          description: "Feedback request deleted"
+        "400":
+          description: "Invalid request"
+        "401":
+          description: "Unauthorized"
+  /v1/feedbacks/viewer:
+    get:
+      security:
+        - bearer: []
+      tags:
+        - "Feedback Request Viewer"
+      summary: "Get all feedback requests"
+      responses:
+        "200":
+          description: "Feedback requests retrieved"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GetAllFeedbacks"
+        "401":
+          description: "Unauthorized"
+    post:
+      security:
+        - bearer: []
+      tags:
+        - "Feedback Request Viewer"
+      summary: "Create a new feedback request"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FeedbackRequestViewer"
+      responses:
+        "201":
+          description: "Feedback request created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeedbackRequest"
+        "400":
+          description: "Invalid request"
+        "401":
+          description: "Unauthorized"
+  /v1/feedbacks/viewer/{id}:
+    put:
+      security:
+        - bearer: []
+      tags:
+        - "Feedback Request Viewer"
+      summary: "Update a feedback request"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: "Feedback request id"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateFeedbackRequest"
+      responses:
+        "200":
+          description: "Feedback request updated"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeedbackRequest"
+        "400":
+          description: "Invalid request"
+        "401":
+          description: "Unauthorized"
+    delete:
+      security:
+        - bearer: []
+      tags:
+        - "Feedback Request Viewer"
+      summary: "Delete a feedback request"
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: "Feedback request id"
+      responses:
+        "204":
+          description: "Feedback request deleted"
+        "400":
+          description: "Invalid request"
+        "401":
+          description: "Unauthorized"
