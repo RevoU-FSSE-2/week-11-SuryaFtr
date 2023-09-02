@@ -112,7 +112,6 @@ components:
         instructions:
           type: string
       required:
-        - createdBy
         - recipename
         - type
     GetAllRecipes:
@@ -177,7 +176,6 @@ components:
         instructions:
           type: string
       required:
-        - createdBy
         - recipename
         - type
     FeedbackRequest:
@@ -269,6 +267,27 @@ components:
         - rate
         - feedback
         - feedbackBy
+    UpdateFeedbackRequestViewer:
+      type: object
+      properties:
+        rate:
+          type: number
+          enum:
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+            - 7
+            - 8
+            - 9
+            - 10
+        feedback:
+          type: string
+      required:
+        - rate
+        - feedback
     GetAllFeedbackByRecipeName:
       type: object
       properties:
@@ -707,7 +726,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UpdateFeedbackRequest"
+              $ref: "#/components/schemas/UpdateFeedbackRequestViewer"
       responses:
         "200":
           description: "Feedback request updated"

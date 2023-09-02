@@ -1,16 +1,16 @@
 const { ObjectId } = require("mongodb")
 const StandardError = require("../constant/standard-error")
 
-const createFeedbackRequest = async ({ db, id_recipe, feedbackBy, ...request }) => {
+const createFeedbackRequest = async ({ db, id_recipe, createdBy, recipename, feedbackBy, ...request }) => {
     try {
         const user = await db.collection("users").findOne({ username: feedbackBy, role: { $in: ["admin", "viewer"] } })
         if (!user) {
             throw new StandardError({ message: "feedbackBy must be fill with registered username viewer", status: 404 })
         }
 
-        const recipe = await db.collection("recipes").findOne({ _id: new ObjectId(id_recipe), status: { $in: ["accepted"] } })
+        const recipe = await db.collection("recipes").findOne({ _id: new ObjectId(id_recipe), createdBy, recipename })
         if (!recipe) {
-            throw new StandardError({ message: "Recipe not found", status: 404 })
+            throw new StandardError({ message: "Recipe not found, id_recipe, createdBy, and recipename is must correct", status: 404 })
         }
 
         const feedback = await db.collection("feedbacks").findOne({ id_recipe, feedbackBy })
@@ -34,11 +34,11 @@ const createFeedbackRequest = async ({ db, id_recipe, feedbackBy, ...request }) 
 
 }
 
-const createFeedbackViewerRequest = async ({ db, id_recipe, feedbackBy, ...request }) => {
+const createFeedbackViewerRequest = async ({ db, id_recipe, createdBy, recipename, feedbackBy, ...request }) => {
     try {
-        const recipe = await db.collection("recipes").findOne({ _id: new ObjectId(id_recipe), status: { $in: ["accepted"] } })
+        const recipe = await db.collection("recipes").findOne({ _id: new ObjectId(id_recipe), createdBy, recipename })
         if (!recipe) {
-            throw new StandardError({ message: "Recipe not found", status: 404 })
+            throw new StandardError({ message: "Recipe not found, id_recipe, createdBy, and recipename is must correct", status: 404 })
         }
 
         const feedback = await db.collection("feedbacks").findOne({ id_recipe, feedbackBy })
@@ -84,7 +84,7 @@ const updateFeedbacksRequest = async ({ db, id, feedbackBy, ...request }) => {
     try {
         const user = await db.collection("feedbacks").findOne({ _id: new ObjectId(id), feedbackBy })
         if (!user) {
-            throw new StandardError({ message: "Feedback is not found", status: 404 })
+            throw new StandardError({ message: "Feedback is not found, id and feedbackBy is must correct", status: 404 })
         }
 
         const feedbackUpdateRequest = {
@@ -134,7 +134,7 @@ const deleteFeedbacksViewerRequest = async ({ db, id, feedbackBy }) => {
     try {
         const user = await db.collection("feedbacks").findOne({ _id: new ObjectId(id), feedbackBy })
         if (!user) {
-            throw new StandardError({ message: "Feedback is not found or unauthorize", status: 404 })
+            throw new StandardError({ message: "Feedback is not found, id and feedbackBy is must correct", status: 404 })
         }
 
         const res = await db.collection('feedbacks').deleteOne({ _id: new ObjectId(id) })

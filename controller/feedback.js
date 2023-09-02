@@ -12,9 +12,9 @@ const jwt = require("jsonwebtoken")
 
 const createFeedback = async (req, res, next) => {
     try {
-        const { id_recipe, feedbackBy } = req.body
+        const { id_recipe, createdBy, recipename, feedbackBy } = req.body
         const { db, body } = req
-        const response = await createFeedbackRequest({ db, id_recipe, feedbackBy, ...body })
+        const response = await createFeedbackRequest({ db, id_recipe, createdBy, recipename, feedbackBy, ...body })
         res.status(201).json({ message: "Feedback request created", data: response })
     } catch (error) {
         next(error)
@@ -32,9 +32,9 @@ const createFeedbackViewer = async (req, res, next) => {
         req.username = payload.username
         feedbackBy = req.username
 
-        const { id_recipe } = req.body
+        const { id_recipe, createdBy, recipename, } = req.body
         const { db, body } = req
-        const response = await createFeedbackViewerRequest({ db, id_recipe, feedbackBy, ...body })
+        const response = await createFeedbackViewerRequest({ db, id_recipe, createdBy, recipename, feedbackBy, ...body })
         res.status(201).json({ message: "Feedback request created", data: response })
     } catch (error) {
         next(error)
