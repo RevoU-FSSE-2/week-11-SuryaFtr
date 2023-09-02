@@ -17,8 +17,8 @@ feedbacksReqRouter.post('/admin', authorizationMiddleware({ role: ['admin'] }), 
 feedbacksReqRouter.post('/viewer', authorizationMiddleware({ role: ['viewer'] }), createFeedbackViewer);
 feedbacksReqRouter.get('/admin', authorizationMiddleware({ role: ['admin'] }), getAllFeedbacks);
 feedbacksReqRouter.get('/viewer', authorizationMiddleware({ role: ['viewer'] }), getFeedbacksViewer);
-feedbacksReqRouter.put('/admin/:id', authorizationMiddleware({ role: ['admin'] }), updateFeedbacks);
-feedbacksReqRouter.put('/viewer/:id', authorizationMiddleware({ role: ['viewer'] }), updateFeedbackViewer);
+feedbacksReqRouter.patch('/admin/:id', authorizationMiddleware({ role: ['admin'] }), updateFeedbacks);
+feedbacksReqRouter.patch('/viewer/:id', authorizationMiddleware({ role: ['viewer'] }), updateFeedbackViewer);
 feedbacksReqRouter.delete('/admin/:id', authorizationMiddleware({ role: ['admin'] }), deleteFeedbacks);
 feedbacksReqRouter.delete('/viewer/:id', authorizationMiddleware({ role: ['viewer'] }), deleteFeedbackViewer);
 
