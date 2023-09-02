@@ -309,7 +309,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/GetAllRecipes"
   /v1/recipename:
-    get:
+    post:
       tags:
         - "Index Request"
       summary: "Get Recipe Feedback by Recipe Name requests"

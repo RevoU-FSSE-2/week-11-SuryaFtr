@@ -7,6 +7,6 @@ const {
 const indexReqRouter = Router();
 
 indexReqRouter.get('/', getAllAcceptedRecipe);
-indexReqRouter.get('/recipename', getRecipeFeedbackbyRecipeName);
+indexReqRouter.post('/recipename', getRecipeFeedbackbyRecipeName);
 
 module.exports = indexReqRouter;
