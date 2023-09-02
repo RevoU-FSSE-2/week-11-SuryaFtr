@@ -48,6 +48,8 @@ const createFeedbackViewerRequest = async ({ db, id_recipe, createdBy, recipenam
 
         const feedbackRequest = {
             id_recipe,
+            createdBy,
+            recipename,
             feedbackBy,
             ...request,
             createdAt: new Date(),
@@ -89,7 +91,6 @@ const updateFeedbacksRequest = async ({ db, id, feedbackBy, ...request }) => {
 
         const feedbackUpdateRequest = {
             ...request,
-            feedbackBy,
             updatedAt: new Date()
         }
 
@@ -105,7 +106,6 @@ const updateFeedbacksRequest = async ({ db, id, feedbackBy, ...request }) => {
 const updateFeedbacksViewerRequest = async ({ db, id, feedbackBy, ...request }) => {
     const feedbackUpdateRequest = {
         ...request,
-        feedbackBy,
         updatedAt: new Date()
     }
 
